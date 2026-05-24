@@ -1,0 +1,1596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#F2F2F7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Toki">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%23FF3B30'/%3E%3Ctext x='90' y='130' font-family='-apple-system,system-ui' font-size='110' font-weight='600' text-anchor='middle' fill='white'%3E時%3C/text%3E%3C/svg%3E">
+<link rel="manifest" href="manifest.json">
+<title>Toki · 時</title>
+<style>
+  /* ===== iOS Design System ===== */
+  :root {
+    --ios-bg: #F2F2F7;
+    --ios-card: #FFFFFF;
+    --ios-separator: rgba(60, 60, 67, 0.12);
+
+    --ios-label: #000000;
+    --ios-label-secondary: rgba(60, 60, 67, 0.6);
+    --ios-label-tertiary: rgba(60, 60, 67, 0.3);
+    --ios-label-quaternary: rgba(60, 60, 67, 0.18);
+
+    --ios-fill-tertiary: rgba(118, 118, 128, 0.12);
+
+    --ios-accent: #FF3B30;
+    --ios-accent-pressed: #D70015;
+    --ios-accent-tint: rgba(255, 59, 48, 0.15);
+
+    --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+    --ease-spring: cubic-bezier(0.32, 0.72, 0, 1);
+
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-left: env(safe-area-inset-left, 0px);
+    --safe-right: env(safe-area-inset-right, 0px);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ios-bg: #000000;
+      --ios-card: #1C1C1E;
+      --ios-separator: rgba(84, 84, 88, 0.6);
+
+      --ios-label: #FFFFFF;
+      --ios-label-secondary: rgba(235, 235, 245, 0.6);
+      --ios-label-tertiary: rgba(235, 235, 245, 0.3);
+      --ios-label-quaternary: rgba(235, 235, 245, 0.18);
+
+      --ios-fill-tertiary: rgba(118, 118, 128, 0.24);
+
+      --ios-accent: #FF453A;
+      --ios-accent-pressed: #FF6961;
+      --ios-accent-tint: rgba(255, 69, 58, 0.2);
+    }
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; }
+
+  html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', system-ui, sans-serif;
+    background: var(--ios-bg);
+    color: var(--ios-label);
+    -webkit-font-smoothing: antialiased;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* ===== Layout ===== */
+  .app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    height: 100dvh;
+    padding-top: var(--safe-top);
+    padding-bottom: var(--safe-bottom);
+    padding-left: var(--safe-left);
+    padding-right: var(--safe-right);
+  }
+
+  /* ===== iOS Navigation Bar ===== */
+  .nav-bar {
+    padding: 12px 20px 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 44px;
+  }
+
+  .nav-title-group { display: flex; flex-direction: column; }
+
+  .nav-kanji {
+    font-size: 34px;
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.4px;
+    color: var(--ios-label);
+  }
+
+  .nav-subtitle {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ios-label-secondary);
+    letter-spacing: -0.1px;
+    margin-top: -2px;
+  }
+
+  .nav-actions { display: flex; align-items: center; gap: 6px; }
+
+  .nav-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--ios-fill-tertiary);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ios-accent);
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+
+  .nav-btn:active { opacity: 0.5; transform: scale(0.92); }
+  .nav-btn svg { width: 18px; height: 18px; }
+
+  /* Script switch — two-option segmented (あ / A) for showing romaji */
+  .script-switch {
+    display: inline-flex;
+    background: var(--ios-fill-tertiary);
+    border-radius: 100px;
+    padding: 2px;
+    height: 30px;
+    align-items: center;
+  }
+
+  .script-opt {
+    height: 26px;
+    min-width: 30px;
+    padding: 0 8px;
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ios-label-secondary);
+    cursor: pointer;
+    border-radius: 100px;
+    transition: background 0.2s ease, color 0.2s ease, transform 0.1s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    letter-spacing: -0.2px;
+  }
+
+  .script-opt[data-script="hira"] {
+    font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', sans-serif;
+    font-size: 15px;
+  }
+
+  .script-opt.active {
+    background: var(--ios-card);
+    color: var(--ios-label);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12), 0 0 0 0.5px rgba(0, 0, 0, 0.04);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .script-opt.active { background: #636366; color: white; }
+  }
+
+  .script-opt:active:not(.active) { opacity: 0.5; }
+
+  .counter-badge {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 2px;
+    padding: 6px 10px;
+    border-radius: 100px;
+    background: var(--ios-fill-tertiary);
+    font-size: 13px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--ios-label-secondary);
+    letter-spacing: -0.1px;
+  }
+
+  .counter-badge b { color: var(--ios-accent); font-weight: 700; }
+
+  /* ===== Main Content ===== */
+  .content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 20px 20px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .card {
+    background: var(--ios-card);
+    border-radius: 16px;
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+
+  .card-padded { padding: 24px 20px; }
+
+  .prompt {
+    font-size: 13px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--ios-label-secondary);
+    text-align: center;
+    margin-bottom: 24px;
+  }
+
+  .time-display {
+    font-size: 80px;
+    font-weight: 700;
+    text-align: center;
+    color: var(--ios-label);
+    letter-spacing: -3px;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    margin: 8px 0 4px;
+    animation: timeIn 0.4s var(--ease-out);
+    overflow-wrap: anywhere;
+  }
+
+  .time-display .ampm {
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--ios-accent);
+    margin-left: 6px;
+    letter-spacing: -0.5px;
+    vertical-align: top;
+    position: relative;
+    top: 12px;
+  }
+
+  @keyframes timeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .answer-divider {
+    height: 1px;
+    background: var(--ios-separator);
+    margin: 28px -20px 20px;
+  }
+
+  .answer {
+    min-height: 88px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.35s var(--ease-out), transform 0.35s var(--ease-spring);
+  }
+
+  .answer.revealed { opacity: 1; transform: translateY(0); }
+
+  .answer-jp {
+    font-family: 'Hiragino Mincho ProN', 'Hiragino Sans', serif;
+    font-size: 44px;
+    font-weight: 600;
+    color: var(--ios-accent);
+    letter-spacing: 2px;
+    line-height: 1.1;
+    text-align: center;
+  }
+
+  .answer-hira {
+    font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', sans-serif;
+    font-size: 17px;
+    color: var(--ios-label-secondary);
+    letter-spacing: 1.5px;
+    font-weight: 400;
+  }
+
+  .answer-romaji {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+    font-size: 14px;
+    color: var(--ios-label-tertiary);
+    letter-spacing: 0.6px;
+    font-weight: 400;
+    font-style: italic;
+    margin-top: 2px;
+  }
+
+  .answer-romaji[hidden] { display: none; }
+
+  /* iOS segmented control */
+  .segmented {
+    display: flex;
+    background: var(--ios-fill-tertiary);
+    border-radius: 9px;
+    padding: 2px;
+    margin: 0 0 12px;
+  }
+
+  .seg-btn {
+    flex: 1;
+    padding: 7px 12px;
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ios-label);
+    cursor: pointer;
+    border-radius: 7px;
+    transition: color 0.2s, background 0.2s;
+    letter-spacing: -0.1px;
+  }
+
+  .seg-btn.active {
+    background: var(--ios-card);
+    font-weight: 600;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12), 0 0 0 0.5px rgba(0, 0, 0, 0.04);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .seg-btn.active { background: #636366; }
+  }
+
+  .seg-btn:active:not(.active) { opacity: 0.5; }
+
+  /* ===== Mode card with iOS toggles ===== */
+  .mode-card {
+    padding: 4px 16px;
+    margin-bottom: 0;
+  }
+
+  .mode-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 11px 0;
+    min-height: 44px;
+    position: relative;
+  }
+
+  .mode-row + .mode-row::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 0.5px;
+    background: var(--ios-separator);
+  }
+
+  .mode-label {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .mode-title {
+    font-size: 17px;
+    font-weight: 400;
+    color: var(--ios-label);
+    letter-spacing: -0.4px;
+  }
+
+  .mode-sub {
+    font-size: 13px;
+    color: var(--ios-label-secondary);
+    letter-spacing: -0.1px;
+  }
+
+  /* iOS-style toggle switch */
+  .ios-toggle {
+    position: relative;
+    display: inline-block;
+    width: 51px;
+    height: 31px;
+    flex-shrink: 0;
+  }
+
+  .ios-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+  }
+
+  .ios-toggle-track {
+    position: absolute;
+    inset: 0;
+    background: var(--ios-fill-tertiary);
+    border-radius: 100px;
+    transition: background 0.25s ease;
+    cursor: pointer;
+  }
+
+  .ios-toggle-track::before {
+    content: '';
+    position: absolute;
+    width: 27px;
+    height: 27px;
+    left: 2px;
+    top: 2px;
+    background: #FFFFFF;
+    border-radius: 50%;
+    transition: transform 0.25s var(--ease-spring), width 0.15s ease;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15), 0 1px 1px rgba(0, 0, 0, 0.08);
+  }
+
+  .ios-toggle input:checked + .ios-toggle-track {
+    background: #34C759;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .ios-toggle input:checked + .ios-toggle-track {
+      background: #30D158;
+    }
+  }
+
+  .ios-toggle input:checked + .ios-toggle-track::before {
+    transform: translateX(20px);
+  }
+
+  .ios-toggle input:active + .ios-toggle-track::before {
+    width: 32px;
+  }
+  .ios-toggle input:checked:active + .ios-toggle-track::before {
+    transform: translateX(15px);
+  }
+
+  /* ===== Range sub-rows (collapse animation) ===== */
+  .range-wrap {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: max-height 0.3s var(--ease-spring), opacity 0.2s ease;
+  }
+
+  .range-wrap.open {
+    max-height: 320px;
+    opacity: 1;
+  }
+
+  .range-row {
+    display: flex;
+    align-items: center;
+    padding: 11px 0 11px 16px;
+    min-height: 44px;
+    position: relative;
+    gap: 10px;
+  }
+
+  .range-row::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 16px;
+    right: 0;
+    height: 0.5px;
+    background: var(--ios-separator);
+  }
+
+  .range-label {
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--ios-label);
+    letter-spacing: -0.2px;
+    flex: 1;
+  }
+
+  .range-sub {
+    font-size: 13px;
+    color: var(--ios-label-tertiary);
+    font-family: 'Hiragino Mincho ProN', serif;
+    letter-spacing: 0.5px;
+  }
+
+  /* iOS-style filled-circle checkbox */
+  .ios-check {
+    position: relative;
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+  }
+
+  .ios-check input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+  }
+
+  .ios-check-box {
+    position: absolute;
+    inset: 0;
+    border: 1.5px solid var(--ios-label-tertiary);
+    border-radius: 50%;
+    transition: background 0.2s ease, border-color 0.2s ease;
+    cursor: pointer;
+  }
+
+  .ios-check input:checked + .ios-check-box {
+    background: var(--ios-accent);
+    border-color: var(--ios-accent);
+  }
+
+  .ios-check input:checked + .ios-check-box::after {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 2px;
+    width: 6px;
+    height: 11px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+
+  .ios-check input:active + .ios-check-box {
+    transform: scale(0.92);
+  }
+
+  /* ===== Action buttons ===== */
+  .actions {
+    padding: 0 20px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px 24px;
+    border: none;
+    border-radius: 14px;
+    font-family: inherit;
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.4px;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s, background 0.15s;
+    width: 100%;
+    min-height: 50px;
+  }
+
+  .btn-filled { background: var(--ios-accent); color: white; }
+  .btn-filled:active { background: var(--ios-accent-pressed); transform: scale(0.98); }
+
+  .btn-tinted { background: var(--ios-accent-tint); color: var(--ios-accent); }
+  .btn-tinted:active { opacity: 0.6; transform: scale(0.98); }
+
+  /* ===== iOS Modal Sheet ===== */
+  .sheet-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s var(--ease-out);
+    z-index: 50;
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+  }
+
+  .sheet-overlay.open { opacity: 1; pointer-events: auto; }
+
+  .sheet {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 10vh;
+    background: var(--ios-bg);
+    border-radius: 14px 14px 0 0;
+    z-index: 100;
+    transform: translateY(100%);
+    transition: transform 0.4s var(--ease-spring);
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.15);
+    padding-bottom: var(--safe-bottom);
+  }
+
+  .sheet.open { transform: translateY(0); }
+
+  .sheet-handle {
+    width: 36px;
+    height: 5px;
+    background: var(--ios-label-quaternary);
+    border-radius: 100px;
+    margin: 6px auto 0;
+    flex-shrink: 0;
+  }
+
+  .sheet-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px 12px;
+    flex-shrink: 0;
+  }
+
+  .sheet-title {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--ios-label);
+    letter-spacing: -0.4px;
+  }
+
+  .sheet-close {
+    background: none;
+    border: none;
+    color: var(--ios-accent);
+    font-family: inherit;
+    font-size: 17px;
+    font-weight: 400;
+    cursor: pointer;
+    padding: 4px 0;
+    letter-spacing: -0.4px;
+  }
+
+  .sheet-close:active { opacity: 0.5; }
+
+  .sheet-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 20px 40px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .section-header {
+    font-size: 13px;
+    font-weight: 400;
+    text-transform: uppercase;
+    color: var(--ios-label-secondary);
+    letter-spacing: 0.06px;
+    padding: 16px 16px 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-header .kanji-tag {
+    font-family: 'Hiragino Mincho ProN', serif;
+    font-size: 17px;
+    color: var(--ios-accent);
+    font-weight: 600;
+  }
+
+  .list {
+    background: var(--ios-card);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .list-row {
+    display: flex;
+    align-items: center;
+    padding: 11px 16px;
+    min-height: 44px;
+    position: relative;
+    gap: 12px;
+  }
+
+  .list-row + .list-row::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 60px;
+    right: 0;
+    height: 0.5px;
+    background: var(--ios-separator);
+  }
+
+  .row-num {
+    font-size: 17px;
+    font-weight: 500;
+    color: var(--ios-label-secondary);
+    width: 32px;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.4px;
+  }
+
+  .row-jp {
+    font-family: 'Hiragino Mincho ProN', serif;
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--ios-label);
+    letter-spacing: 1px;
+    flex: 1;
+  }
+
+  .row-hira {
+    font-family: 'Hiragino Sans', sans-serif;
+    font-size: 15px;
+    color: var(--ios-label-secondary);
+    letter-spacing: 0.5px;
+    text-align: right;
+  }
+
+  .row-irregular .row-hira { color: var(--ios-accent); font-weight: 500; }
+  .row-irregular .row-hira::after {
+    content: ' ●';
+    font-size: 8px;
+    vertical-align: middle;
+  }
+
+  .section-footnote {
+    font-size: 13px;
+    color: var(--ios-label-secondary);
+    padding: 8px 16px 4px;
+    letter-spacing: -0.1px;
+  }
+
+  .section-footnote .dot { color: var(--ios-accent); }
+
+  /* Small phone tweaks */
+  @media (max-height: 700px) {
+    .time-display { font-size: 64px; letter-spacing: -2px; }
+    .time-display .ampm { font-size: 22px; top: 8px; }
+    .answer-jp { font-size: 36px; }
+    .answer-divider { margin: 20px -20px 14px; }
+    .card-padded { padding: 20px 18px; }
+  }
+
+  @media (max-height: 600px) {
+    .time-display { font-size: 56px; }
+    .answer-jp { font-size: 32px; }
+    .nav-kanji { font-size: 28px; }
+  }
+</style>
+</head>
+<body>
+  <div class="app">
+
+    <header class="nav-bar">
+      <div class="nav-title-group">
+        <span class="nav-kanji">時 Toki</span>
+        <span class="nav-subtitle">Japanese time practice</span>
+      </div>
+      <div class="nav-actions">
+        <div class="counter-badge"><b id="streak">0</b><span>/</span><span id="seen">0</span></div>
+        <div class="script-switch" id="script-switch" role="group" aria-label="Show romaji">
+          <button class="script-opt active" data-script="hira" aria-pressed="true">あ</button>
+          <button class="script-opt" data-script="romaji" aria-pressed="false">A</button>
+        </div>
+        <button class="nav-btn" id="ref-time-btn" aria-label="Time reference" title="Time reference">
+          <!-- Stopwatch icon -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="10" y1="2" x2="14" y2="2"/>
+            <line x1="12" y1="2" x2="12" y2="5"/>
+            <circle cx="12" cy="14" r="8"/>
+            <line x1="12" y1="14" x2="15.5" y2="11"/>
+            <line x1="18.5" y1="5.5" x2="20" y2="7"/>
+          </svg>
+        </button>
+        <button class="nav-btn" id="ref-num-btn" aria-label="Numbers reference" title="Numbers reference">
+          <!-- Hash / numbers icon -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="4" y1="9" x2="20" y2="9"/>
+            <line x1="4" y1="15" x2="20" y2="15"/>
+            <line x1="10" y1="3" x2="8" y2="21"/>
+            <line x1="16" y1="3" x2="14" y2="21"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <main class="content">
+      <div class="card card-padded">
+        <p class="prompt">Say this time in Japanese</p>
+
+        <div class="time-display" id="time-display">
+          3:30<span class="ampm">PM</span>
+        </div>
+
+        <div class="answer-divider"></div>
+
+        <div class="answer" id="answer">
+          <div class="answer-jp" id="answer-jp">午後三時半</div>
+          <div class="answer-hira" id="answer-hira">ごごさんじはん</div>
+          <div class="answer-romaji" id="answer-romaji" hidden>gogo sanji han</div>
+        </div>
+      </div>
+
+      <div class="segmented" role="tablist">
+        <button class="seg-btn active" data-diff="easy">Easy</button>
+        <button class="seg-btn" data-diff="medium">Medium</button>
+        <button class="seg-btn" data-diff="hard">Hard</button>
+      </div>
+
+      <!-- Mode toggles (Time / Numbers) -->
+      <div class="card mode-card">
+        <div class="mode-row">
+          <div class="mode-label">
+            <span class="mode-title">Time</span>
+            <span class="mode-sub">時 — Tell the hour</span>
+          </div>
+          <label class="ios-toggle">
+            <input type="checkbox" id="mode-time" checked>
+            <span class="ios-toggle-track"></span>
+          </label>
+        </div>
+        <div class="mode-row">
+          <div class="mode-label">
+            <span class="mode-title">Numbers</span>
+            <span class="mode-sub">数 — Learn to count</span>
+          </div>
+          <label class="ios-toggle">
+            <input type="checkbox" id="mode-numbers">
+            <span class="ios-toggle-track"></span>
+          </label>
+        </div>
+
+        <!-- Number ranges (revealed when Numbers is on) -->
+        <div class="range-wrap" id="range-wrap">
+          <div class="range-row">
+            <span class="range-label">All numbers</span>
+            <span class="range-sub">1 – 99,999</span>
+            <label class="ios-check">
+              <input type="checkbox" class="range-cb" data-range="all">
+              <span class="ios-check-box"></span>
+            </label>
+          </div>
+          <div class="range-row">
+            <span class="range-label">Numbers 1 – 999</span>
+            <span class="range-sub">百 hyaku</span>
+            <label class="ios-check">
+              <input type="checkbox" class="range-cb" data-range="1-999" checked>
+              <span class="ios-check-box"></span>
+            </label>
+          </div>
+          <div class="range-row">
+            <span class="range-label">Numbers 1000 – 9999</span>
+            <span class="range-sub">千 sen</span>
+            <label class="ios-check">
+              <input type="checkbox" class="range-cb" data-range="1000-9999">
+              <span class="ios-check-box"></span>
+            </label>
+          </div>
+          <div class="range-row">
+            <span class="range-label">Numbers 10000 – 99999</span>
+            <span class="range-sub">万 man</span>
+            <label class="ios-check">
+              <input type="checkbox" class="range-cb" data-range="10000-99999">
+              <span class="ios-check-box"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div class="actions">
+      <button class="btn btn-filled" id="reveal-btn">Show answer</button>
+      <button class="btn btn-tinted" id="next-btn">Next time</button>
+    </div>
+  </div>
+
+  <!-- Reference Sheets -->
+  <div class="sheet-overlay" id="sheet-overlay"></div>
+
+  <!-- Time reference sheet -->
+  <div class="sheet" id="time-sheet" aria-hidden="true">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header">
+      <div style="width: 50px;"></div>
+      <div class="sheet-title">Time reference</div>
+      <button class="sheet-close" data-sheet="time-sheet">Done</button>
+    </div>
+
+    <div class="sheet-body">
+      <div class="section-header">
+        <span class="kanji-tag">時</span>
+        <span>Hours · ji</span>
+      </div>
+      <div class="list">
+        <div class="list-row"><span class="row-num">1</span><span class="row-jp">一時</span><span class="row-hira">いちじ</span></div>
+        <div class="list-row"><span class="row-num">2</span><span class="row-jp">二時</span><span class="row-hira">にじ</span></div>
+        <div class="list-row"><span class="row-num">3</span><span class="row-jp">三時</span><span class="row-hira">さんじ</span></div>
+        <div class="list-row row-irregular"><span class="row-num">4</span><span class="row-jp">四時</span><span class="row-hira">よじ</span></div>
+        <div class="list-row"><span class="row-num">5</span><span class="row-jp">五時</span><span class="row-hira">ごじ</span></div>
+        <div class="list-row"><span class="row-num">6</span><span class="row-jp">六時</span><span class="row-hira">ろくじ</span></div>
+        <div class="list-row row-irregular"><span class="row-num">7</span><span class="row-jp">七時</span><span class="row-hira">しちじ</span></div>
+        <div class="list-row"><span class="row-num">8</span><span class="row-jp">八時</span><span class="row-hira">はちじ</span></div>
+        <div class="list-row row-irregular"><span class="row-num">9</span><span class="row-jp">九時</span><span class="row-hira">くじ</span></div>
+        <div class="list-row"><span class="row-num">10</span><span class="row-jp">十時</span><span class="row-hira">じゅうじ</span></div>
+        <div class="list-row"><span class="row-num">11</span><span class="row-jp">十一時</span><span class="row-hira">じゅういちじ</span></div>
+        <div class="list-row"><span class="row-num">12</span><span class="row-jp">十二時</span><span class="row-hira">じゅうにじ</span></div>
+      </div>
+
+      <div class="section-header">
+        <span class="kanji-tag">分</span>
+        <span>Minutes · fun / pun</span>
+      </div>
+      <div class="list">
+        <div class="list-row row-irregular"><span class="row-num">1</span><span class="row-jp">一分</span><span class="row-hira">いっぷん</span></div>
+        <div class="list-row"><span class="row-num">2</span><span class="row-jp">二分</span><span class="row-hira">にふん</span></div>
+        <div class="list-row row-irregular"><span class="row-num">3</span><span class="row-jp">三分</span><span class="row-hira">さんぷん</span></div>
+        <div class="list-row"><span class="row-num">4</span><span class="row-jp">四分</span><span class="row-hira">よんぷん</span></div>
+        <div class="list-row"><span class="row-num">5</span><span class="row-jp">五分</span><span class="row-hira">ごふん</span></div>
+        <div class="list-row row-irregular"><span class="row-num">6</span><span class="row-jp">六分</span><span class="row-hira">ろっぷん</span></div>
+        <div class="list-row"><span class="row-num">7</span><span class="row-jp">七分</span><span class="row-hira">ななふん</span></div>
+        <div class="list-row row-irregular"><span class="row-num">8</span><span class="row-jp">八分</span><span class="row-hira">はっぷん</span></div>
+        <div class="list-row"><span class="row-num">9</span><span class="row-jp">九分</span><span class="row-hira">きゅうふん</span></div>
+        <div class="list-row row-irregular"><span class="row-num">10</span><span class="row-jp">十分</span><span class="row-hira">じゅっぷん</span></div>
+        <div class="list-row"><span class="row-num">15</span><span class="row-jp">十五分</span><span class="row-hira">じゅうごふん</span></div>
+        <div class="list-row"><span class="row-num">20</span><span class="row-jp">二十分</span><span class="row-hira">にじゅっぷん</span></div>
+        <div class="list-row"><span class="row-num">30</span><span class="row-jp">三十分 / 半</span><span class="row-hira">さんじゅっぷん / はん</span></div>
+        <div class="list-row"><span class="row-num">45</span><span class="row-jp">四十五分</span><span class="row-hira">よんじゅうごふん</span></div>
+      </div>
+
+      <div class="section-header">
+        <span class="kanji-tag">午</span>
+        <span>Morning · Afternoon</span>
+      </div>
+      <div class="list">
+        <div class="list-row"><span class="row-num">AM</span><span class="row-jp">午前</span><span class="row-hira">ごぜん</span></div>
+        <div class="list-row"><span class="row-num">PM</span><span class="row-jp">午後</span><span class="row-hira">ごご</span></div>
+      </div>
+
+      <p class="section-footnote"><span class="dot">●</span> Irregular readings — watch for sound changes</p>
+    </div>
+  </div>
+
+  <!-- Numbers reference sheet -->
+  <div class="sheet" id="num-sheet" aria-hidden="true">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header">
+      <div style="width: 50px;"></div>
+      <div class="sheet-title">Numbers reference</div>
+      <button class="sheet-close" data-sheet="num-sheet">Done</button>
+    </div>
+
+    <div class="sheet-body">
+      <div class="section-header">
+        <span class="kanji-tag">一</span>
+        <span>Digits 1 – 10</span>
+      </div>
+      <div class="list">
+        <div class="list-row"><span class="row-num">1</span><span class="row-jp">一</span><span class="row-hira">いち</span></div>
+        <div class="list-row"><span class="row-num">2</span><span class="row-jp">二</span><span class="row-hira">に</span></div>
+        <div class="list-row"><span class="row-num">3</span><span class="row-jp">三</span><span class="row-hira">さん</span></div>
+        <div class="list-row"><span class="row-num">4</span><span class="row-jp">四</span><span class="row-hira">よん / し</span></div>
+        <div class="list-row"><span class="row-num">5</span><span class="row-jp">五</span><span class="row-hira">ご</span></div>
+        <div class="list-row"><span class="row-num">6</span><span class="row-jp">六</span><span class="row-hira">ろく</span></div>
+        <div class="list-row"><span class="row-num">7</span><span class="row-jp">七</span><span class="row-hira">なな / しち</span></div>
+        <div class="list-row"><span class="row-num">8</span><span class="row-jp">八</span><span class="row-hira">はち</span></div>
+        <div class="list-row"><span class="row-num">9</span><span class="row-jp">九</span><span class="row-hira">きゅう / く</span></div>
+        <div class="list-row"><span class="row-num">10</span><span class="row-jp">十</span><span class="row-hira">じゅう</span></div>
+      </div>
+
+      <div class="section-header">
+        <span class="kanji-tag">百</span>
+        <span>Hundreds · hyaku</span>
+      </div>
+      <div class="list">
+        <div class="list-row"><span class="row-num">100</span><span class="row-jp">百</span><span class="row-hira">ひゃく</span></div>
+        <div class="list-row"><span class="row-num">200</span><span class="row-jp">二百</span><span class="row-hira">にひゃく</span></div>
+        <div class="list-row row-irregular"><span class="row-num">300</span><span class="row-jp">三百</span><span class="row-hira">さんびゃく</span></div>
+        <div class="list-row"><span class="row-num">400</span><span class="row-jp">四百</span><span class="row-hira">よんひゃく</span></div>
+        <div class="list-row"><span class="row-num">500</span><span class="row-jp">五百</span><span class="row-hira">ごひゃく</span></div>
+        <div class="list-row row-irregular"><span class="row-num">600</span><span class="row-jp">六百</span><span class="row-hira">ろっぴゃく</span></div>
+        <div class="list-row"><span class="row-num">700</span><span class="row-jp">七百</span><span class="row-hira">ななひゃく</span></div>
+        <div class="list-row row-irregular"><span class="row-num">800</span><span class="row-jp">八百</span><span class="row-hira">はっぴゃく</span></div>
+        <div class="list-row"><span class="row-num">900</span><span class="row-jp">九百</span><span class="row-hira">きゅうひゃく</span></div>
+      </div>
+
+      <div class="section-header">
+        <span class="kanji-tag">千</span>
+        <span>Thousands · sen</span>
+      </div>
+      <div class="list">
+        <div class="list-row"><span class="row-num">1k</span><span class="row-jp">千</span><span class="row-hira">せん</span></div>
+        <div class="list-row"><span class="row-num">2k</span><span class="row-jp">二千</span><span class="row-hira">にせん</span></div>
+        <div class="list-row row-irregular"><span class="row-num">3k</span><span class="row-jp">三千</span><span class="row-hira">さんぜん</span></div>
+        <div class="list-row"><span class="row-num">4k</span><span class="row-jp">四千</span><span class="row-hira">よんせん</span></div>
+        <div class="list-row"><span class="row-num">5k</span><span class="row-jp">五千</span><span class="row-hira">ごせん</span></div>
+        <div class="list-row"><span class="row-num">6k</span><span class="row-jp">六千</span><span class="row-hira">ろくせん</span></div>
+        <div class="list-row"><span class="row-num">7k</span><span class="row-jp">七千</span><span class="row-hira">ななせん</span></div>
+        <div class="list-row row-irregular"><span class="row-num">8k</span><span class="row-jp">八千</span><span class="row-hira">はっせん</span></div>
+        <div class="list-row"><span class="row-num">9k</span><span class="row-jp">九千</span><span class="row-hira">きゅうせん</span></div>
+      </div>
+
+      <div class="section-header">
+        <span class="kanji-tag">万</span>
+        <span>Ten-thousands · man</span>
+      </div>
+      <div class="list">
+        <div class="list-row"><span class="row-num">10k</span><span class="row-jp">一万</span><span class="row-hira">いちまん</span></div>
+        <div class="list-row"><span class="row-num">20k</span><span class="row-jp">二万</span><span class="row-hira">にまん</span></div>
+        <div class="list-row"><span class="row-num">30k</span><span class="row-jp">三万</span><span class="row-hira">さんまん</span></div>
+        <div class="list-row"><span class="row-num">50k</span><span class="row-jp">五万</span><span class="row-hira">ごまん</span></div>
+        <div class="list-row"><span class="row-num">100k</span><span class="row-jp">十万</span><span class="row-hira">じゅうまん</span></div>
+      </div>
+
+      <p class="section-footnote"><span class="dot">●</span> Irregular readings — watch for sound changes</p>
+    </div>
+  </div>
+
+<script>
+  const hourReadings = {
+    1: { jp: '一時', hira: 'いちじ' }, 2: { jp: '二時', hira: 'にじ' },
+    3: { jp: '三時', hira: 'さんじ' }, 4: { jp: '四時', hira: 'よじ' },
+    5: { jp: '五時', hira: 'ごじ' }, 6: { jp: '六時', hira: 'ろくじ' },
+    7: { jp: '七時', hira: 'しちじ' }, 8: { jp: '八時', hira: 'はちじ' },
+    9: { jp: '九時', hira: 'くじ' }, 10: { jp: '十時', hira: 'じゅうじ' },
+    11: { jp: '十一時', hira: 'じゅういちじ' }, 12: { jp: '十二時', hira: 'じゅうにじ' }
+  };
+
+  const minuteUnits = {
+    1: { jp: '一分', hira: 'いっぷん' }, 2: { jp: '二分', hira: 'にふん' },
+    3: { jp: '三分', hira: 'さんぷん' }, 4: { jp: '四分', hira: 'よんぷん' },
+    5: { jp: '五分', hira: 'ごふん' }, 6: { jp: '六分', hira: 'ろっぷん' },
+    7: { jp: '七分', hira: 'ななふん' }, 8: { jp: '八分', hira: 'はっぷん' },
+    9: { jp: '九分', hira: 'きゅうふん' }, 10: { jp: '十分', hira: 'じゅっぷん' }
+  };
+
+  const tensKanji = { 1: '十', 2: '二十', 3: '三十', 4: '四十', 5: '五十' };
+  const tensHira = { 1: 'じゅう', 2: 'にじゅう', 3: 'さんじゅう', 4: 'よんじゅう', 5: 'ごじゅう' };
+  const onesMinSuffix = {
+    1: { jp: '一分', h: 'いっぷん' }, 2: { jp: '二分', h: 'にふん' },
+    3: { jp: '三分', h: 'さんぷん' }, 4: { jp: '四分', h: 'よんぷん' },
+    5: { jp: '五分', h: 'ごふん' }, 6: { jp: '六分', h: 'ろっぷん' },
+    7: { jp: '七分', h: 'ななふん' }, 8: { jp: '八分', h: 'はっぷん' },
+    9: { jp: '九分', h: 'きゅうふん' }
+  };
+
+  function minutesToJapanese(min) {
+    if (min === 0) return { jp: '', hira: '' };
+    if (min === 30) return { jp: '半', hira: 'はん' };
+    if (min <= 10) return minuteUnits[min];
+    const tens = Math.floor(min / 10);
+    const ones = min % 10;
+    if (ones === 0) {
+      return { jp: tensKanji[tens] + '分', hira: tensHira[tens] + 'っぷん' };
+    }
+    const o = onesMinSuffix[ones];
+    return { jp: tensKanji[tens] + o.jp, hira: tensHira[tens] + o.h };
+  }
+
+  function generateRandomTime(difficulty) {
+    const hour = Math.floor(Math.random() * 12) + 1;
+    const isPM = Math.random() < 0.5;
+    let minute;
+    if (difficulty === 'easy') minute = Math.random() < 0.5 ? 0 : 30;
+    else if (difficulty === 'medium') {
+      const opts = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
+      minute = opts[Math.floor(Math.random() * opts.length)];
+    } else minute = Math.floor(Math.random() * 60);
+    return { hour, minute, isPM };
+  }
+
+  function formatEnglish(h, m, pm) {
+    return { time: `${h}:${m.toString().padStart(2, '0')}`, period: pm ? 'PM' : 'AM' };
+  }
+
+  function formatJapanese(h, m, pm) {
+    const period = pm ? { jp: '午後', hira: 'ごご' } : { jp: '午前', hira: 'ごぜん' };
+    const hr = hourReadings[h];
+    const mn = minutesToJapanese(m);
+    return { jp: period.jp + hr.jp + mn.jp, hira: period.hira + hr.hira + mn.hira };
+  }
+
+  // ===== Hiragana → Romaji =====
+  // Hepburn-style romanisation covering all kana used in time + number readings.
+  const kanaMap = {
+    // base
+    'あ':'a','い':'i','う':'u','え':'e','お':'o',
+    'か':'ka','き':'ki','く':'ku','け':'ke','こ':'ko',
+    'が':'ga','ぎ':'gi','ぐ':'gu','げ':'ge','ご':'go',
+    'さ':'sa','し':'shi','す':'su','せ':'se','そ':'so',
+    'ざ':'za','じ':'ji','ず':'zu','ぜ':'ze','ぞ':'zo',
+    'た':'ta','ち':'chi','つ':'tsu','て':'te','と':'to',
+    'だ':'da','ぢ':'ji','づ':'zu','で':'de','ど':'do',
+    'な':'na','に':'ni','ぬ':'nu','ね':'ne','の':'no',
+    'は':'ha','ひ':'hi','ふ':'fu','へ':'he','ほ':'ho',
+    'ば':'ba','び':'bi','ぶ':'bu','べ':'be','ぼ':'bo',
+    'ぱ':'pa','ぴ':'pi','ぷ':'pu','ぺ':'pe','ぽ':'po',
+    'ま':'ma','み':'mi','む':'mu','め':'me','も':'mo',
+    'や':'ya','ゆ':'yu','よ':'yo',
+    'ら':'ra','り':'ri','る':'ru','れ':'re','ろ':'ro',
+    'わ':'wa','を':'wo','ん':'n'
+  };
+  // Yōon (small ゃゅょ) combinations
+  const yoonMap = {
+    'きゃ':'kya','きゅ':'kyu','きょ':'kyo',
+    'ぎゃ':'gya','ぎゅ':'gyu','ぎょ':'gyo',
+    'しゃ':'sha','しゅ':'shu','しょ':'sho',
+    'じゃ':'ja','じゅ':'ju','じょ':'jo',
+    'ちゃ':'cha','ちゅ':'chu','ちょ':'cho',
+    'にゃ':'nya','にゅ':'nyu','にょ':'nyo',
+    'ひゃ':'hya','ひゅ':'hyu','ひょ':'hyo',
+    'びゃ':'bya','びゅ':'byu','びょ':'byo',
+    'ぴゃ':'pya','ぴゅ':'pyu','ぴょ':'pyo',
+    'みゃ':'mya','みゅ':'myu','みょ':'myo',
+    'りゃ':'rya','りゅ':'ryu','りょ':'ryo'
+  };
+
+  function hiraganaToRomaji(hira) {
+    let out = [];
+    let i = 0;
+    while (i < hira.length) {
+      const ch = hira[i];
+
+      // Sokuon (small っ) — doubles the next consonant
+      if (ch === 'っ') {
+        const next = hira[i + 1];
+        if (!next) { i++; continue; }
+        const pair = hira[i + 1] + (hira[i + 2] || '');
+        const nextRom = yoonMap[pair] || kanaMap[next] || '';
+        if (nextRom) out.push(nextRom[0]);
+        i++;
+        continue;
+      }
+
+      // Try yōon (2-char combo)
+      const pair = ch + (hira[i + 1] || '');
+      if (yoonMap[pair]) {
+        out.push(yoonMap[pair]);
+        i += 2;
+        continue;
+      }
+
+      // Long vowel mark for う after お → "ō" sound, write as "ou" → simplified to doubled vowel
+      // We'll keep it simple: just map each kana directly.
+      if (kanaMap[ch]) {
+        out.push(kanaMap[ch]);
+      }
+      i++;
+    }
+    // Join with no spaces; then add a soft space between word units? We keep it as one string.
+    // Apply Hepburn long-vowel collapsing: "ou"→"ō" feels nicer but plain readers handle "ou".
+    return out.join('');
+  }
+
+  // ===== Numbers mode =====
+  // Base readings 1-10
+  const numDigits = {
+    1: { jp: '一', hira: 'いち' },
+    2: { jp: '二', hira: 'に' },
+    3: { jp: '三', hira: 'さん' },
+    4: { jp: '四', hira: 'よん' },
+    5: { jp: '五', hira: 'ご' },
+    6: { jp: '六', hira: 'ろく' },
+    7: { jp: '七', hira: 'なな' },
+    8: { jp: '八', hira: 'はち' },
+    9: { jp: '九', hira: 'きゅう' },
+    10: { jp: '十', hira: 'じゅう' }
+  };
+
+  // Hundreds (百 hyaku) — with sound changes
+  const numHundreds = {
+    1: { jp: '百', hira: 'ひゃく' },
+    2: { jp: '二百', hira: 'にひゃく' },
+    3: { jp: '三百', hira: 'さんびゃく' },  // sound change
+    4: { jp: '四百', hira: 'よんひゃく' },
+    5: { jp: '五百', hira: 'ごひゃく' },
+    6: { jp: '六百', hira: 'ろっぴゃく' },  // sound change
+    7: { jp: '七百', hira: 'ななひゃく' },
+    8: { jp: '八百', hira: 'はっぴゃく' },  // sound change
+    9: { jp: '九百', hira: 'きゅうひゃく' }
+  };
+
+  // Thousands (千 sen) — with sound changes
+  const numThousands = {
+    1: { jp: '千', hira: 'せん' },
+    2: { jp: '二千', hira: 'にせん' },
+    3: { jp: '三千', hira: 'さんぜん' },    // sound change
+    4: { jp: '四千', hira: 'よんせん' },
+    5: { jp: '五千', hira: 'ごせん' },
+    6: { jp: '六千', hira: 'ろくせん' },
+    7: { jp: '七千', hira: 'ななせん' },
+    8: { jp: '八千', hira: 'はっせん' },    // sound change
+    9: { jp: '九千', hira: 'きゅうせん' }
+  };
+
+  function numberToJapanese(n) {
+    if (n < 1 || n > 99999) return { jp: '?', hira: '?' };
+    if (n <= 10) return numDigits[n];
+
+    // 11-19
+    if (n < 20) {
+      const ones = n - 10;
+      return {
+        jp: numDigits[10].jp + numDigits[ones].jp,
+        hira: numDigits[10].hira + numDigits[ones].hira
+      };
+    }
+    // 20-99
+    if (n < 100) {
+      const tens = Math.floor(n / 10);
+      const ones = n % 10;
+      let jp = numDigits[tens].jp + numDigits[10].jp;
+      let hira = numDigits[tens].hira + numDigits[10].hira;
+      if (ones > 0) {
+        jp += numDigits[ones].jp;
+        hira += numDigits[ones].hira;
+      }
+      return { jp, hira };
+    }
+    // 100-999
+    if (n < 1000) {
+      const hundreds = Math.floor(n / 100);
+      const rest = n % 100;
+      let { jp, hira } = numHundreds[hundreds];
+      if (rest > 0) {
+        const r = numberToJapanese(rest);
+        jp += r.jp;
+        hira += r.hira;
+      }
+      return { jp, hira };
+    }
+    // 1000-9999
+    if (n < 10000) {
+      const thousands = Math.floor(n / 1000);
+      const rest = n % 1000;
+      let { jp, hira } = numThousands[thousands];
+      if (rest > 0) {
+        const r = numberToJapanese(rest);
+        jp += r.jp;
+        hira += r.hira;
+      }
+      return { jp, hira };
+    }
+    // 10000-99999  (uses 万 man)
+    const tenThousands = Math.floor(n / 10000);
+    const rest = n % 10000;
+    // tenThousands is 1-9; assemble its reading using numDigits
+    // Special case: 1万 reads いちまん (not just まん)
+    let jp = numDigits[tenThousands].jp + '万';
+    let hira = numDigits[tenThousands].hira + 'まん';
+    if (rest > 0) {
+      const r = numberToJapanese(rest);
+      jp += r.jp;
+      hira += r.hira;
+    }
+    return { jp, hira };
+  }
+
+  // Pick a "rounded" number within [min, max] — multiples of nice round steps
+  // for that range. Used by Easy difficulty in Numbers mode.
+  function pickRoundedInRange(min, max) {
+    let steps;
+    if (max <= 999) {
+      // 1-999: multiples of 10 or 100
+      steps = [10, 100];
+    } else if (max <= 9999) {
+      // 1000-9999: multiples of 100 or 1000
+      steps = [100, 1000];
+    } else {
+      // 10000-99999: multiples of 1000 or 10000
+      steps = [1000, 10000];
+    }
+    const step = steps[Math.floor(Math.random() * steps.length)];
+    const lo = Math.ceil(min / step);
+    const hi = Math.floor(max / step);
+    if (hi < lo) return min; // safety fallback
+    return (Math.floor(Math.random() * (hi - lo + 1)) + lo) * step;
+  }
+
+  function generateRandomNumber(difficulty, ranges) {
+    // ranges: { all, '1-999', '1000-9999', '10000-99999' } booleans
+    let pools = [];
+    if (ranges.all) {
+      pools = [[1, 999], [1000, 9999], [10000, 99999]];
+    } else {
+      if (ranges['1-999']) pools.push([1, 999]);
+      if (ranges['1000-9999']) pools.push([1000, 9999]);
+      if (ranges['10000-99999']) pools.push([10000, 99999]);
+    }
+    if (pools.length === 0) pools = [[1, 99]];
+
+    const [min, max] = pools[Math.floor(Math.random() * pools.length)];
+
+    // Easy   — rounded numbers only (multiples of 10/100/1000 by range)
+    // Medium — bottom two-thirds of the range
+    // Hard   — anywhere in the range
+    if (difficulty === 'easy') {
+      return pickRoundedInRange(min, max);
+    }
+    let lo = min, hi = max;
+    if (difficulty === 'medium') {
+      const span = max - min + 1;
+      hi = min + Math.max(1, Math.floor((span * 2) / 3)) - 1;
+    }
+    return Math.floor(Math.random() * (hi - lo + 1)) + lo;
+  }
+
+  let current = null;
+  let currentType = 'time';  // 'time' or 'number'
+  let revealed = false;
+  let difficulty = 'easy';
+  let seen = 0;
+  let streak = 0;
+  let modes = { time: true, numbers: false };  // which modes are enabled
+  let showRomaji = false;
+  let numberRanges = {
+    all: false,
+    '1-999': true,
+    '1000-9999': false,
+    '10000-99999': false
+  };
+
+  const timeDisplay = document.getElementById('time-display');
+  const answer = document.getElementById('answer');
+  const answerJp = document.getElementById('answer-jp');
+  const answerHira = document.getElementById('answer-hira');
+  const answerRomaji = document.getElementById('answer-romaji');
+  const revealBtn = document.getElementById('reveal-btn');
+  const nextBtn = document.getElementById('next-btn');
+  const seenEl = document.getElementById('seen');
+  const streakEl = document.getElementById('streak');
+
+  function pickRandomItem() {
+    const enabled = [];
+    if (modes.time) enabled.push('time');
+    if (modes.numbers) enabled.push('number');
+    if (enabled.length === 0) return null;  // shouldn't happen — UI prevents it
+    return enabled[Math.floor(Math.random() * enabled.length)];
+  }
+
+  function generateNext() {
+    const type = pickRandomItem();
+    if (type === 'time') {
+      return { type: 'time', data: generateRandomTime(difficulty) };
+    } else {
+      return { type: 'number', data: generateRandomNumber(difficulty, numberRanges) };
+    }
+  }
+
+  function render() {
+    let enText, jp;
+
+    if (current.type === 'time') {
+      const en = formatEnglish(current.data.hour, current.data.minute, current.data.isPM);
+      enText = `${en.time}<span class="ampm">${en.period}</span>`;
+      jp = formatJapanese(current.data.hour, current.data.minute, current.data.isPM);
+      document.querySelector('.prompt').textContent = 'Say this time in Japanese';
+    } else {
+      enText = current.data.toLocaleString();
+      jp = numberToJapanese(current.data);
+      document.querySelector('.prompt').textContent = 'Say this number in Japanese';
+    }
+
+    timeDisplay.innerHTML = enText;
+    answerJp.textContent = jp.jp;
+    answerHira.textContent = jp.hira;
+    answerRomaji.textContent = hiraganaToRomaji(jp.hira);
+    answerRomaji.hidden = !showRomaji;
+
+    if (revealed) {
+      answer.classList.add('revealed');
+      revealBtn.textContent = 'Hide answer';
+    } else {
+      answer.classList.remove('revealed');
+      revealBtn.textContent = 'Show answer';
+    }
+    seenEl.textContent = seen;
+    streakEl.textContent = streak;
+  }
+
+  function newTime() {
+    if (!revealed && seen > 0) streak += 1;
+    current = generateNext();
+    if (!current) return;
+    revealed = false;
+    seen += 1;
+    timeDisplay.style.animation = 'none';
+    void timeDisplay.offsetWidth;
+    timeDisplay.style.animation = '';
+    render();
+    haptic();
+  }
+
+  function toggleAnswer() {
+    revealed = !revealed;
+    if (revealed) streak = 0;
+    render();
+    haptic();
+  }
+
+  function haptic() {
+    if (navigator.vibrate) navigator.vibrate(8);
+  }
+
+  revealBtn.addEventListener('click', toggleAnswer);
+  nextBtn.addEventListener('click', newTime);
+
+  document.querySelectorAll('.seg-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      difficulty = btn.dataset.diff;
+      current = generateNext();
+      revealed = false;
+      seen = 1;
+      streak = 0;
+      render();
+      haptic();
+    });
+  });
+
+  // Mode toggles — at least one must be on
+  const modeTime = document.getElementById('mode-time');
+  const modeNumbers = document.getElementById('mode-numbers');
+  const rangeWrap = document.getElementById('range-wrap');
+  const rangeCbs = document.querySelectorAll('.range-cb');
+
+  function updateRangeVisibility() {
+    if (modes.numbers) rangeWrap.classList.add('open');
+    else rangeWrap.classList.remove('open');
+  }
+
+  function syncModes(changed) {
+    modes.time = modeTime.checked;
+    modes.numbers = modeNumbers.checked;
+
+    // Prevent both being off — re-enable the other
+    if (!modes.time && !modes.numbers) {
+      if (changed === 'time') {
+        modes.numbers = true;
+        modeNumbers.checked = true;
+      } else {
+        modes.time = true;
+        modeTime.checked = true;
+      }
+    }
+
+    updateRangeVisibility();
+
+    // If the current item's type is no longer enabled, generate a new one
+    if (current && !modes[current.type === 'time' ? 'time' : 'numbers']) {
+      current = generateNext();
+      revealed = false;
+      render();
+    }
+    haptic();
+  }
+
+  modeTime.addEventListener('change', () => syncModes('time'));
+  modeNumbers.addEventListener('change', () => syncModes('numbers'));
+
+  // Range checkboxes — multi-select, "All" is exclusive with the specific ones
+  function syncRanges(changedKey) {
+    const allCb = document.querySelector('.range-cb[data-range="all"]');
+    const specificCbs = document.querySelectorAll('.range-cb:not([data-range="all"])');
+
+    if (changedKey === 'all' && allCb.checked) {
+      // Checking "All" clears the specific ones
+      specificCbs.forEach(cb => { cb.checked = false; });
+    } else if (changedKey !== 'all' && document.querySelector(`.range-cb[data-range="${changedKey}"]`).checked) {
+      // Checking a specific range clears "All"
+      allCb.checked = false;
+    }
+
+    // Read state back
+    numberRanges.all = allCb.checked;
+    numberRanges['1-999'] = document.querySelector('.range-cb[data-range="1-999"]').checked;
+    numberRanges['1000-9999'] = document.querySelector('.range-cb[data-range="1000-9999"]').checked;
+    numberRanges['10000-99999'] = document.querySelector('.range-cb[data-range="10000-99999"]').checked;
+
+    // Ensure at least one is selected — fall back to 1-999
+    const anyChecked = numberRanges.all || numberRanges['1-999'] || numberRanges['1000-9999'] || numberRanges['10000-99999'];
+    if (!anyChecked) {
+      numberRanges['1-999'] = true;
+      document.querySelector('.range-cb[data-range="1-999"]').checked = true;
+    }
+
+    // If the current item is a number outside selected ranges, regenerate
+    if (current && current.type === 'number') {
+      current = generateNext();
+      revealed = false;
+      render();
+    }
+    haptic();
+  }
+
+  rangeCbs.forEach(cb => {
+    cb.addEventListener('change', () => syncRanges(cb.dataset.range));
+  });
+
+  // Script switch (あ / A) — toggles romaji display
+  const scriptOpts = document.querySelectorAll('.script-opt');
+  scriptOpts.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const choice = btn.dataset.script; // 'hira' or 'romaji'
+      const next = (choice === 'romaji');
+      if (next === showRomaji) return; // already active, ignore
+      showRomaji = next;
+      scriptOpts.forEach(b => {
+        const isActive = b.dataset.script === choice;
+        b.classList.toggle('active', isActive);
+        b.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+      });
+      render();
+      haptic();
+    });
+  });
+
+  // Initial visibility
+  updateRangeVisibility();
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggleAnswer(); }
+    else if (e.key === 'ArrowRight' || e.key === 'n') newTime();
+    else if (e.key === 'Escape') closeSheet();
+  });
+
+  // Reference sheets — two separate sheets (time + numbers)
+  const refTimeBtn = document.getElementById('ref-time-btn');
+  const refNumBtn = document.getElementById('ref-num-btn');
+  const timeSheet = document.getElementById('time-sheet');
+  const numSheet = document.getElementById('num-sheet');
+  const overlay = document.getElementById('sheet-overlay');
+  const allSheets = [timeSheet, numSheet];
+
+  function openSheet(sheet) {
+    closeAllSheets(false); // close any other open sheet without animation glitches
+    sheet.classList.add('open');
+    overlay.classList.add('open');
+    sheet.setAttribute('aria-hidden', 'false');
+    haptic();
+  }
+  function closeAllSheets(animate = true) {
+    allSheets.forEach(s => {
+      s.classList.remove('open');
+      s.setAttribute('aria-hidden', 'true');
+    });
+    overlay.classList.remove('open');
+  }
+  function closeSheet() { closeAllSheets(); }
+
+  refTimeBtn.addEventListener('click', () => openSheet(timeSheet));
+  refNumBtn.addEventListener('click', () => openSheet(numSheet));
+  document.querySelectorAll('.sheet-close').forEach(btn => {
+    btn.addEventListener('click', closeSheet);
+  });
+  overlay.addEventListener('click', closeSheet);
+
+  // Swipe-down-to-dismiss — attach to each sheet
+  function attachSwipe(sheet) {
+    let touchStartY = 0, touchCurrentY = 0, dragging = false;
+    sheet.addEventListener('touchstart', (e) => {
+      const body = e.target.closest('.sheet-body');
+      if (body && body.scrollTop > 0) return;
+      touchStartY = e.touches[0].clientY;
+      touchCurrentY = touchStartY;
+      dragging = true;
+    }, { passive: true });
+
+    sheet.addEventListener('touchmove', (e) => {
+      if (!dragging) return;
+      touchCurrentY = e.touches[0].clientY;
+      const dy = touchCurrentY - touchStartY;
+      if (dy > 0) {
+        sheet.style.transition = 'none';
+        sheet.style.transform = `translateY(${dy}px)`;
+      }
+    }, { passive: true });
+
+    sheet.addEventListener('touchend', () => {
+      if (!dragging) return;
+      const dy = touchCurrentY - touchStartY;
+      sheet.style.transition = '';
+      sheet.style.transform = '';
+      if (dy > 120) closeSheet();
+      dragging = false;
+    });
+  }
+  allSheets.forEach(attachSwipe);
+
+  // Init
+  current = generateNext();
+  seen = 1;
+  render();
+
+  // PWA: register service worker (works once served from http/https)
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    });
+  }
+</script>
+</body>
+</html>
