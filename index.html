@@ -822,6 +822,16 @@
             <span class="ios-toggle-track"></span>
           </label>
         </div>
+        <div class="mode-row">
+          <div class="mode-label">
+            <span class="mode-title">Weekdays</span>
+            <span class="mode-sub">曜日 — Learn days of the week</span>
+          </div>
+          <label class="ios-toggle">
+            <input type="checkbox" id="mode-weekdays">
+            <span class="ios-toggle-track"></span>
+          </label>
+        </div>
 
         <!-- Number ranges (revealed when Numbers is on) -->
         <div class="range-wrap" id="range-wrap">
@@ -863,7 +873,7 @@
 
     <div class="actions">
       <button class="btn btn-filled" id="reveal-btn">Show answer</button>
-      <button class="btn btn-tinted" id="next-btn">Next time</button>
+      <button class="btn btn-tinted" id="next-btn">Next item</button>
     </div>
   </div>
 
@@ -927,6 +937,20 @@
       <div class="list">
         <div class="list-row"><span class="row-num">AM</span><span class="row-jp">午前</span><span class="row-hira">ごぜん</span></div>
         <div class="list-row"><span class="row-num">PM</span><span class="row-jp">午後</span><span class="row-hira">ごご</span></div>
+      </div>
+
+      <div class="section-header">
+        <span class="kanji-tag">曜</span>
+        <span>Days of the week · yōbi</span>
+      </div>
+      <div class="list">
+        <div class="list-row"><span class="row-num">Mon</span><span class="row-jp">月曜日</span><span class="row-hira">げつようび</span></div>
+        <div class="list-row"><span class="row-num">Tue</span><span class="row-jp">火曜日</span><span class="row-hira">かようび</span></div>
+        <div class="list-row"><span class="row-num">Wed</span><span class="row-jp">水曜日</span><span class="row-hira">すいようび</span></div>
+        <div class="list-row"><span class="row-num">Thu</span><span class="row-jp">木曜日</span><span class="row-hira">もくようび</span></div>
+        <div class="list-row"><span class="row-num">Fri</span><span class="row-jp">金曜日</span><span class="row-hira">きんようび</span></div>
+        <div class="list-row"><span class="row-num">Sat</span><span class="row-jp">土曜日</span><span class="row-hira">どようび</span></div>
+        <div class="list-row"><span class="row-num">Sun</span><span class="row-jp">日曜日</span><span class="row-hira">にちようび</span></div>
       </div>
 
       <p class="section-footnote"><span class="dot">●</span> Irregular readings — watch for sound changes</p>
@@ -1070,6 +1094,20 @@
     const hr = hourReadings[h];
     const mn = minutesToJapanese(m);
     return { jp: period.jp + hr.jp + mn.jp, hira: period.hira + hr.hira + mn.hira };
+  }
+
+  const weekdayReadings = [
+    { en: 'Monday', jp: '月曜日', hira: 'げつようび' },
+    { en: 'Tuesday', jp: '火曜日', hira: 'かようび' },
+    { en: 'Wednesday', jp: '水曜日', hira: 'すいようび' },
+    { en: 'Thursday', jp: '木曜日', hira: 'もくようび' },
+    { en: 'Friday', jp: '金曜日', hira: 'きんようび' },
+    { en: 'Saturday', jp: '土曜日', hira: 'どようび' },
+    { en: 'Sunday', jp: '日曜日', hira: 'にちようび' }
+  ];
+
+  function generateRandomWeekday() {
+    return weekdayReadings[Math.floor(Math.random() * weekdayReadings.length)];
   }
 
   // ===== Hiragana → Romaji =====
@@ -1303,7 +1341,7 @@
   let difficulty = 'easy';
   let seen = 0;
   let streak = 0;
-  let modes = { time: true, numbers: false };  // which modes are enabled
+  let modes = { time: true, numbers: false, weekdays: false };  // which modes are enabled
   let showRomaji = false;
   let numberRanges = {
     all: false,
@@ -1326,6 +1364,7 @@
     const enabled = [];
     if (modes.time) enabled.push('time');
     if (modes.numbers) enabled.push('number');
+    if (modes.weekdays) enabled.push('weekday');
     if (enabled.length === 0) return null;  // shouldn't happen — UI prevents it
     return enabled[Math.floor(Math.random() * enabled.length)];
   }
@@ -1334,8 +1373,10 @@
     const type = pickRandomItem();
     if (type === 'time') {
       return { type: 'time', data: generateRandomTime(difficulty) };
-    } else {
+    } else if (type === 'number') {
       return { type: 'number', data: generateRandomNumber(difficulty, numberRanges) };
+    } else {
+      return { type: 'weekday', data: generateRandomWeekday() };
     }
   }
 
@@ -1347,10 +1388,14 @@
       enText = `${en.time}<span class="ampm">${en.period}</span>`;
       jp = formatJapanese(current.data.hour, current.data.minute, current.data.isPM);
       document.querySelector('.prompt').textContent = 'Say this time in Japanese';
-    } else {
+    } else if (current.type === 'number') {
       enText = current.data.toLocaleString();
       jp = numberToJapanese(current.data);
       document.querySelector('.prompt').textContent = 'Say this number in Japanese';
+    } else {
+      enText = current.data.en;
+      jp = { jp: current.data.jp, hira: current.data.hira };
+      document.querySelector('.prompt').textContent = 'Say this day in Japanese';
     }
 
     timeDisplay.innerHTML = enText;
@@ -1414,8 +1459,10 @@
   // Mode toggles — at least one must be on
   const modeTime = document.getElementById('mode-time');
   const modeNumbers = document.getElementById('mode-numbers');
+  const modeWeekdays = document.getElementById('mode-weekdays');
   const rangeWrap = document.getElementById('range-wrap');
   const rangeCbs = document.querySelectorAll('.range-cb');
+  const modeInputs = { time: modeTime, numbers: modeNumbers, weekdays: modeWeekdays };
 
   function updateRangeVisibility() {
     if (modes.numbers) rangeWrap.classList.add('open');
@@ -1425,22 +1472,24 @@
   function syncModes(changed) {
     modes.time = modeTime.checked;
     modes.numbers = modeNumbers.checked;
+    modes.weekdays = modeWeekdays.checked;
 
-    // Prevent both being off — re-enable the other
-    if (!modes.time && !modes.numbers) {
-      if (changed === 'time') {
-        modes.numbers = true;
-        modeNumbers.checked = true;
-      } else {
-        modes.time = true;
-        modeTime.checked = true;
+    // Prevent all being off — re-enable another one
+    if (!modes.time && !modes.numbers && !modes.weekdays) {
+      for (const key of ['time', 'numbers', 'weekdays']) {
+        if (key !== changed) {
+          modes[key] = true;
+          modeInputs[key].checked = true;
+          break;
+        }
       }
     }
 
     updateRangeVisibility();
 
     // If the current item's type is no longer enabled, generate a new one
-    if (current && !modes[current.type === 'time' ? 'time' : 'numbers']) {
+    const currentModeKey = current?.type === 'number' ? 'numbers' : current?.type;
+    if (current && !modes[currentModeKey]) {
       current = generateNext();
       revealed = false;
       render();
@@ -1450,6 +1499,7 @@
 
   modeTime.addEventListener('change', () => syncModes('time'));
   modeNumbers.addEventListener('change', () => syncModes('numbers'));
+  modeWeekdays.addEventListener('change', () => syncModes('weekdays'));
 
   // Range checkboxes — multi-select, "All" is exclusive with the specific ones
   function syncRanges(changedKey) {
