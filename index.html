@@ -858,6 +858,44 @@
             </label>
           </div>
         </div>
+        <div class="mode-row">
+          <div class="mode-label">
+            <span class="mode-title">Days</span>
+            <span class="mode-sub">曜日 — Days of the week</span>
+          </div>
+          <label class="ios-toggle">
+            <input type="checkbox" id="mode-days">
+            <span class="ios-toggle-track"></span>
+          </label>
+        </div>
+
+        <!-- Day direction (revealed when Days is on) -->
+        <div class="range-wrap" id="day-direction-wrap">
+          <div class="range-row">
+            <span class="range-label">Ask Japanese</span>
+            <span class="range-sub">English → 日本語</span>
+            <label class="ios-check">
+              <input type="checkbox" class="dir-cb" data-dir="japanese" checked>
+              <span class="ios-check-box"></span>
+            </label>
+          </div>
+          <div class="range-row">
+            <span class="range-label">Ask English</span>
+            <span class="range-sub">日本語 → English</span>
+            <label class="ios-check">
+              <input type="checkbox" class="dir-cb" data-dir="english">
+              <span class="ios-check-box"></span>
+            </label>
+          </div>
+          <div class="range-row">
+            <span class="range-label">Both</span>
+            <span class="range-sub">Random direction</span>
+            <label class="ios-check">
+              <input type="checkbox" class="dir-cb" data-dir="both">
+              <span class="ios-check-box"></span>
+            </label>
+          </div>
+        </div>
       </div>
     </main>
 
@@ -1009,6 +1047,24 @@
   </div>
 
 <script>
+  const dayReadings = [
+    { en: 'Monday',    jp: '月曜日', hira: 'げつようび' },
+    { en: 'Tuesday',   jp: '火曜日', hira: 'かようび' },
+    { en: 'Wednesday', jp: '水曜日', hira: 'すいようび' },
+    { en: 'Thursday',  jp: '木曜日', hira: 'もくようび' },
+    { en: 'Friday',    jp: '金曜日', hira: 'きんようび' },
+    { en: 'Saturday',  jp: '土曜日', hira: 'どようび' },
+    { en: 'Sunday',    jp: '日曜日', hira: 'にちようび' },
+  ];
+
+  function generateRandomDay() {
+    const day = dayReadings[Math.floor(Math.random() * dayReadings.length)];
+    const dir = dayDirection === 'both'
+      ? (Math.random() < 0.5 ? 'japanese' : 'english')
+      : dayDirection;
+    return { en: day.en, jp: day.jp, hira: day.hira, direction: dir };
+  }
+
   const hourReadings = {
     1: { jp: '一時', hira: 'いちじ' }, 2: { jp: '二時', hira: 'にじ' },
     3: { jp: '三時', hira: 'さんじ' }, 4: { jp: '四時', hira: 'よじ' },
@@ -1303,7 +1359,8 @@
   let difficulty = 'easy';
   let seen = 0;
   let streak = 0;
-  let modes = { time: true, numbers: false };  // which modes are enabled
+  let modes = { time: true, numbers: false, days: false };  // which modes are enabled
+  let dayDirection = 'japanese'; // 'japanese', 'english', or 'both'
   let showRomaji = false;
   let numberRanges = {
     all: false,
@@ -1326,6 +1383,7 @@
     const enabled = [];
     if (modes.time) enabled.push('time');
     if (modes.numbers) enabled.push('number');
+    if (modes.days) enabled.push('day');
     if (enabled.length === 0) return null;  // shouldn't happen — UI prevents it
     return enabled[Math.floor(Math.random() * enabled.length)];
   }
@@ -1334,6 +1392,8 @@
     const type = pickRandomItem();
     if (type === 'time') {
       return { type: 'time', data: generateRandomTime(difficulty) };
+    } else if (type === 'day') {
+      return { type: 'day', data: generateRandomDay() };
     } else {
       return { type: 'number', data: generateRandomNumber(difficulty, numberRanges) };
     }
@@ -1347,10 +1407,23 @@
       enText = `${en.time}<span class="ampm">${en.period}</span>`;
       jp = formatJapanese(current.data.hour, current.data.minute, current.data.isPM);
       document.querySelector('.prompt').textContent = 'Say this time in Japanese';
+      nextBtn.textContent = 'Next time';
+    } else if (current.type === 'day') {
+      if (current.data.direction === 'english') {
+        enText = current.data.jp;
+        jp = { jp: current.data.en, hira: current.data.hira };
+        document.querySelector('.prompt').textContent = 'Name this day in English';
+      } else {
+        enText = current.data.en;
+        jp = { jp: current.data.jp, hira: current.data.hira };
+        document.querySelector('.prompt').textContent = 'Say this day in Japanese';
+      }
+      nextBtn.textContent = 'Next day';
     } else {
       enText = current.data.toLocaleString();
       jp = numberToJapanese(current.data);
       document.querySelector('.prompt').textContent = 'Say this number in Japanese';
+      nextBtn.textContent = 'Next number';
     }
 
     timeDisplay.innerHTML = enText;
@@ -1414,33 +1487,40 @@
   // Mode toggles — at least one must be on
   const modeTime = document.getElementById('mode-time');
   const modeNumbers = document.getElementById('mode-numbers');
+  const modeDays = document.getElementById('mode-days');
   const rangeWrap = document.getElementById('range-wrap');
   const rangeCbs = document.querySelectorAll('.range-cb');
+  const dayDirectionWrap = document.getElementById('day-direction-wrap');
+  const dirCbs = document.querySelectorAll('.dir-cb');
 
   function updateRangeVisibility() {
     if (modes.numbers) rangeWrap.classList.add('open');
     else rangeWrap.classList.remove('open');
   }
 
+  function updateDayDirectionVisibility() {
+    if (modes.days) dayDirectionWrap.classList.add('open');
+    else dayDirectionWrap.classList.remove('open');
+  }
+
   function syncModes(changed) {
     modes.time = modeTime.checked;
     modes.numbers = modeNumbers.checked;
+    modes.days = modeDays.checked;
 
-    // Prevent both being off — re-enable the other
-    if (!modes.time && !modes.numbers) {
-      if (changed === 'time') {
-        modes.numbers = true;
-        modeNumbers.checked = true;
-      } else {
-        modes.time = true;
-        modeTime.checked = true;
-      }
+    // Prevent all being off — re-enable the one that was just turned off
+    if (!modes.time && !modes.numbers && !modes.days) {
+      if (changed === 'time') { modes.time = true; modeTime.checked = true; }
+      else if (changed === 'numbers') { modes.numbers = true; modeNumbers.checked = true; }
+      else { modes.days = true; modeDays.checked = true; }
     }
 
     updateRangeVisibility();
+    updateDayDirectionVisibility();
 
     // If the current item's type is no longer enabled, generate a new one
-    if (current && !modes[current.type === 'time' ? 'time' : 'numbers']) {
+    const typeKey = current && (current.type === 'time' ? 'time' : current.type === 'day' ? 'days' : 'numbers');
+    if (current && !modes[typeKey]) {
       current = generateNext();
       revealed = false;
       render();
@@ -1450,6 +1530,7 @@
 
   modeTime.addEventListener('change', () => syncModes('time'));
   modeNumbers.addEventListener('change', () => syncModes('numbers'));
+  modeDays.addEventListener('change', () => syncModes('days'));
 
   // Range checkboxes — multi-select, "All" is exclusive with the specific ones
   function syncRanges(changedKey) {
@@ -1508,8 +1589,28 @@
     });
   });
 
+  // Direction checkboxes — radio-like (only one selected at a time)
+  function syncDirection(key) {
+    dirCbs.forEach(cb => { cb.checked = cb.dataset.dir === key; });
+    dayDirection = key;
+    if (current && current.type === 'day') {
+      current = generateNext();
+      revealed = false;
+      render();
+    }
+    haptic();
+  }
+
+  dirCbs.forEach(cb => {
+    cb.addEventListener('change', () => {
+      if (cb.checked) syncDirection(cb.dataset.dir);
+      else cb.checked = true; // prevent unchecking — must have one selected
+    });
+  });
+
   // Initial visibility
   updateRangeVisibility();
+  updateDayDirectionVisibility();
 
   document.addEventListener('keydown', (e) => {
     if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggleAnswer(); }
