@@ -901,7 +901,6 @@
 
     <div class="actions">
       <button class="btn btn-filled" id="reveal-btn">Show answer</button>
-      <button class="btn btn-tinted" id="next-btn">Next time</button>
     </div>
   </div>
 
@@ -1375,7 +1374,6 @@
   const answerHira = document.getElementById('answer-hira');
   const answerRomaji = document.getElementById('answer-romaji');
   const revealBtn = document.getElementById('reveal-btn');
-  const nextBtn = document.getElementById('next-btn');
   const seenEl = document.getElementById('seen');
   const streakEl = document.getElementById('streak');
 
@@ -1400,14 +1398,14 @@
   }
 
   function render() {
-    let enText, jp;
+    let enText, jp, nextLabel;
 
     if (current.type === 'time') {
       const en = formatEnglish(current.data.hour, current.data.minute, current.data.isPM);
       enText = `${en.time}<span class="ampm">${en.period}</span>`;
       jp = formatJapanese(current.data.hour, current.data.minute, current.data.isPM);
       document.querySelector('.prompt').textContent = 'Say this time in Japanese';
-      nextBtn.textContent = 'Next time';
+      nextLabel = 'Next time';
     } else if (current.type === 'day') {
       if (current.data.direction === 'english') {
         enText = current.data.jp;
@@ -1418,12 +1416,12 @@
         jp = { jp: current.data.jp, hira: current.data.hira };
         document.querySelector('.prompt').textContent = 'Say this day in Japanese';
       }
-      nextBtn.textContent = 'Next day';
+      nextLabel = 'Next day';
     } else {
       enText = current.data.toLocaleString();
       jp = numberToJapanese(current.data);
       document.querySelector('.prompt').textContent = 'Say this number in Japanese';
-      nextBtn.textContent = 'Next number';
+      nextLabel = 'Next number';
     }
 
     timeDisplay.innerHTML = enText;
@@ -1434,7 +1432,7 @@
 
     if (revealed) {
       answer.classList.add('revealed');
-      revealBtn.textContent = 'Hide answer';
+      revealBtn.textContent = nextLabel;
     } else {
       answer.classList.remove('revealed');
       revealBtn.textContent = 'Show answer';
@@ -1467,8 +1465,7 @@
     if (navigator.vibrate) navigator.vibrate(8);
   }
 
-  revealBtn.addEventListener('click', toggleAnswer);
-  nextBtn.addEventListener('click', newTime);
+  revealBtn.addEventListener('click', () => { if (revealed) newTime(); else toggleAnswer(); });
 
   document.querySelectorAll('.seg-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -1613,7 +1610,7 @@
   updateDayDirectionVisibility();
 
   document.addEventListener('keydown', (e) => {
-    if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggleAnswer(); }
+    if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); if (revealed) newTime(); else toggleAnswer(); }
     else if (e.key === 'ArrowRight' || e.key === 'n') newTime();
     else if (e.key === 'Escape') closeSheet();
   });
