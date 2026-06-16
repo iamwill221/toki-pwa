@@ -231,6 +231,15 @@
     overflow-wrap: anywhere;
   }
 
+  .time-display .display-hira {
+    display: block;
+    font-size: 22px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    color: var(--ios-secondary-label);
+    margin-top: 6px;
+  }
+
   .time-display .ampm {
     font-size: 28px;
     font-weight: 600;
@@ -251,6 +260,18 @@
     height: 1px;
     background: var(--ios-separator);
     margin: 28px -20px 20px;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 28px 0 20px;
+  }
+
+  .empty-title {
+    font-size: 17px;
+    color: var(--ios-label-secondary);
+    font-weight: 500;
+    margin: 0;
   }
 
   .answer {
@@ -747,10 +768,9 @@
     <header class="nav-bar">
       <div class="nav-title-group">
         <span class="nav-kanji">時 Toki</span>
-        <span class="nav-subtitle">Japanese time practice</span>
+        <span class="nav-subtitle">Japanese practice</span>
       </div>
       <div class="nav-actions">
-        <div class="counter-badge"><b id="streak">0</b><span>/</span><span id="seen">0</span></div>
         <div class="script-switch" id="script-switch" role="group" aria-label="Show romaji">
           <button class="script-opt active" data-script="hira" aria-pressed="true">あ</button>
           <button class="script-opt" data-script="romaji" aria-pressed="false">A</button>
@@ -779,18 +799,23 @@
 
     <main class="content">
       <div class="card card-padded">
-        <p class="prompt">Say this time in Japanese</p>
-
-        <div class="time-display" id="time-display">
-          3:30<span class="ampm">PM</span>
+        <div id="empty-state" class="empty-state">
+          <p class="empty-title">Select a mode to begin</p>
         </div>
+        <div id="practice-content" hidden>
+          <p class="prompt">Say this time in Japanese</p>
 
-        <div class="answer-divider"></div>
+          <div class="time-display" id="time-display">
+            3:30<span class="ampm">PM</span>
+          </div>
 
-        <div class="answer" id="answer">
-          <div class="answer-jp" id="answer-jp">午後三時半</div>
-          <div class="answer-hira" id="answer-hira">ごごさんじはん</div>
-          <div class="answer-romaji" id="answer-romaji" hidden>gogo sanji han</div>
+          <div class="answer-divider"></div>
+
+          <div class="answer" id="answer">
+            <div class="answer-jp" id="answer-jp">午後三時半</div>
+            <div class="answer-hira" id="answer-hira">ごごさんじはん</div>
+            <div class="answer-romaji" id="answer-romaji" hidden>gogo sanji han</div>
+          </div>
         </div>
       </div>
 
@@ -808,7 +833,7 @@
             <span class="mode-sub">時 — Tell the hour</span>
           </div>
           <label class="ios-toggle">
-            <input type="checkbox" id="mode-time" checked>
+            <input type="checkbox" id="mode-time">
             <span class="ios-toggle-track"></span>
           </label>
         </div>
@@ -872,10 +897,18 @@
         <!-- Day direction (revealed when Days is on) -->
         <div class="range-wrap" id="day-direction-wrap">
           <div class="range-row">
+            <span class="range-label">All (both)</span>
+            <span class="range-sub">Random direction</span>
+            <label class="ios-check">
+              <input type="checkbox" class="dir-cb" data-dir="both" checked>
+              <span class="ios-check-box"></span>
+            </label>
+          </div>
+          <div class="range-row">
             <span class="range-label">Ask Japanese</span>
             <span class="range-sub">English → 日本語</span>
             <label class="ios-check">
-              <input type="checkbox" class="dir-cb" data-dir="japanese" checked>
+              <input type="checkbox" class="dir-cb" data-dir="japanese">
               <span class="ios-check-box"></span>
             </label>
           </div>
@@ -887,19 +920,61 @@
               <span class="ios-check-box"></span>
             </label>
           </div>
+        </div>
+        <div class="mode-row">
+          <div class="mode-label">
+            <span class="mode-title">Vocabulary</span>
+            <span class="mode-sub">語彙 — Word practice</span>
+          </div>
+          <label class="ios-toggle">
+            <input type="checkbox" id="mode-vocab">
+            <span class="ios-toggle-track"></span>
+          </label>
+        </div>
+
+        <!-- Vocab lessons (revealed when Vocabulary is on) -->
+        <div class="range-wrap" id="vocab-lesson-wrap">
           <div class="range-row">
-            <span class="range-label">Both</span>
-            <span class="range-sub">Random direction</span>
+            <span class="range-label">Lesson 7</span>
             <label class="ios-check">
-              <input type="checkbox" class="dir-cb" data-dir="both">
+              <input type="checkbox" class="lesson-cb" data-lesson="7">
+              <span class="ios-check-box"></span>
+            </label>
+          </div>
+          <div class="range-row">
+            <span class="range-label">Lesson 8</span>
+            <label class="ios-check">
+              <input type="checkbox" class="lesson-cb" data-lesson="8">
+              <span class="ios-check-box"></span>
+            </label>
+          </div>
+          <div class="range-row">
+            <span class="range-label">Lesson 9</span>
+            <label class="ios-check">
+              <input type="checkbox" class="lesson-cb" data-lesson="9">
               <span class="ios-check-box"></span>
             </label>
           </div>
         </div>
+        <div class="mode-row">
+          <div class="mode-label">
+            <span class="mode-title">Adjectives</span>
+            <span class="mode-sub">形容詞 — Adjective practice</span>
+          </div>
+          <label class="ios-toggle">
+            <input type="checkbox" id="mode-adj">
+            <span class="ios-toggle-track"></span>
+          </label>
+        </div>
+        <div class="range-wrap" id="adj-direction-wrap">
+          <div class="range-row"><span class="range-label">All (both)</span><span class="range-sub">Random direction</span><label class="ios-check"><input type="checkbox" class="adj-dir-cb" data-dir="both" checked><span class="ios-check-box"></span></label></div>
+          <div class="range-row"><span class="range-label">Ask Japanese</span><span class="range-sub">English → 日本語</span><label class="ios-check"><input type="checkbox" class="adj-dir-cb" data-dir="japanese"><span class="ios-check-box"></span></label></div>
+          <div class="range-row"><span class="range-label">Ask English</span><span class="range-sub">日本語 → English</span><label class="ios-check"><input type="checkbox" class="adj-dir-cb" data-dir="english"><span class="ios-check-box"></span></label></div>
+        </div>
       </div>
     </main>
 
-    <div class="actions">
+    <div class="actions" id="actions-bar" hidden>
       <button class="btn btn-filled" id="reveal-btn">Show answer</button>
     </div>
   </div>
@@ -1055,6 +1130,115 @@
     { en: 'Saturday',  jp: '土曜日', hira: 'どようび' },
     { en: 'Sunday',    jp: '日曜日', hira: 'にちようび' },
   ];
+
+  const vocabByLesson = {
+    7: [
+      { en: 'place', jp: 'ところ', hira: 'ところ' },
+      { en: 'thing', jp: 'もの', hira: 'もの' },
+      { en: 'photograph', jp: '写真', hira: 'しゃしん' },
+      { en: 'building', jp: '建物', hira: 'たてもの' },
+      { en: 'city, town', jp: '町', hira: 'まち' },
+      { en: 'flower', jp: '花', hira: 'はな' },
+      { en: 'room', jp: '部屋', hira: 'へや' },
+      { en: 'apartment house', jp: 'アパート', hira: 'あぱーと' },
+      { en: 'animation', jp: 'アニメ', hira: 'あにめ' },
+      { en: 'food', jp: '食べ物', hira: 'たべもの' },
+      { en: 'life, living', jp: '生活', hira: 'せいかつ' },
+      { en: 'mountain', jp: '山', hira: 'やま' },
+      { en: 'sea', jp: '海', hira: 'うみ' },
+    ],
+    8: [
+      { en: 'west exit', jp: '西口', hira: 'にしぐち' },
+      { en: 'east exit', jp: '東口', hira: 'ひがしぐち' },
+      { en: 'south exit', jp: '南口', hira: 'みなみぐち' },
+      { en: 'north exit', jp: '北口', hira: 'きたぐち' },
+      { en: 'church', jp: '教会', hira: 'きょうかい' },
+      { en: 'lake', jp: '湖', hira: 'みずうみ' },
+      { en: 'fishing', jp: '釣り', hira: 'つり' },
+      { en: 'animal', jp: '動物', hira: 'どうぶつ' },
+      { en: 'souvenir', jp: 'お土産', hira: 'おみやげ' },
+      { en: 'shop', jp: '店', hira: 'みせ' },
+      { en: 'on / above', jp: '上', hira: 'うえ' },
+      { en: 'under, below', jp: '下', hira: 'した' },
+      { en: 'front, before', jp: '前', hira: 'まえ' },
+      { en: 'back, behind', jp: '後ろ', hira: 'うしろ' },
+      { en: 'in, inside', jp: '中', hira: 'なか' },
+      { en: 'out, outside', jp: '外', hira: 'そと' },
+      { en: 'side', jp: '横', hira: 'よこ' },
+      { en: 'next, next door', jp: '隣', hira: 'となり' },
+      { en: 'between, among', jp: '間', hira: 'あいだ' },
+      { en: 'vicinity, neighborhood', jp: '近く', hira: 'ちかく' },
+      { en: 'exist, be (inanimate)', jp: 'あります', hira: 'あります' },
+      { en: 'exist, be (animate)', jp: 'います', hira: 'います' },
+      { en: 'sing', jp: '歌います', hira: 'うたいます' },
+      { en: 'dance', jp: '踊ります', hira: 'おどります' },
+      { en: 'far, distant', jp: '遠い', hira: 'とおい' },
+      { en: 'close, near', jp: '近い', hira: 'ちかい' },
+      { en: 'busy', jp: '忙しい', hira: 'いそがしい' },
+      { en: 'having free time, not busy', jp: '暇', hira: 'ひま' },
+      { en: 'many, much', jp: 'たくさん', hira: 'たくさん' },
+    ],
+    9: [
+      { en: "someone else's father", jp: 'お父さん', hira: 'おとうさん' },
+      { en: "someone else's mother", jp: 'お母さん', hira: 'おかあさん' },
+      { en: "someone else's elder brother", jp: 'お兄さん', hira: 'おにいさん' },
+      { en: "someone else's elder sister", jp: 'お姉さん', hira: 'おねえさん' },
+      { en: "someone else's younger brother", jp: '弟さん', hira: 'おとうとさん' },
+      { en: "someone else's younger sister", jp: '妹さん', hira: 'いもうとさん' },
+      { en: 'my father', jp: '父', hira: 'ちち' },
+      { en: 'my mother', jp: '母', hira: 'はは' },
+      { en: 'my elder brother', jp: '兄', hira: 'あに' },
+      { en: 'my elder sister', jp: '姉', hira: 'あね' },
+      { en: 'my younger brother', jp: '弟', hira: 'おとうと' },
+      { en: 'my younger sister', jp: '妹', hira: 'いもうと' },
+      { en: "(someone else's) family", jp: '(ご)家族', hira: '(ご)かぞく' },
+      { en: "(someone else's) parents", jp: '(ご)両親', hira: '(ご)りょうしん' },
+    ],
+  };
+
+  const adjectivesData = [
+    { en: 'big', jp: '大きい', hira: 'おおきい' },
+    { en: 'small, little', jp: '小さい', hira: 'ちいさい' },
+    { en: 'new', jp: '新しい', hira: 'あたらしい' },
+    { en: 'old', jp: '古い', hira: 'ふるい' },
+    { en: 'interesting', jp: '面白い', hira: 'おもしろい' },
+    { en: 'high, expensive', jp: '高い', hira: 'たかい' },
+    { en: 'low', jp: '低い', hira: 'ひくい' },
+    { en: 'cheap', jp: '安い', hira: 'やすい' },
+    { en: 'enjoyable', jp: '楽しい', hira: 'たのしい' },
+    { en: 'good', jp: 'いい', hira: 'いい' },
+    { en: 'delicious', jp: 'おいしい', hira: 'おいしい' },
+    { en: 'difficult', jp: '難しい', hira: 'むずかしい' },
+    { en: 'blue', jp: '青い', hira: 'あおい' },
+    { en: 'wide, spacious', jp: '広い', hira: 'ひろい' },
+    { en: 'narrow', jp: '狭い', hira: 'せまい' },
+    { en: 'black', jp: '黒い', hira: 'くろい' },
+    { en: 'white', jp: '白い', hira: 'しろい' },
+    { en: 'red', jp: '赤い', hira: 'あかい' },
+    { en: 'healthy, lively', jp: '元気', hira: 'げんき', na: true },
+    { en: 'kind', jp: '親切', hira: 'しんせつ', na: true },
+    { en: 'simple, easy', jp: '簡単', hira: 'かんたん', na: true },
+    { en: 'beautiful, clean', jp: 'きれい', hira: 'きれい', na: true },
+    { en: 'lively, active', jp: 'にぎやか', hira: 'にぎやか', na: true },
+    { en: 'quiet', jp: '静か', hira: 'しずか', na: true },
+    { en: 'convenient', jp: '便利', hira: 'べんり', na: true },
+    { en: 'famous', jp: '有名', hira: 'ゆうめい', na: true },
+    { en: 'hard, tough', jp: '大変', hira: 'たいへん', na: true },
+  ];
+
+  function generateRandomVocab() {
+    const pool = [];
+    [6,7,8,9,10,11,12].forEach(n => { if (vocabLessons[n]) pool.push(...vocabByLesson[n]); });
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
+
+  function generateRandomAdj() {
+    const adj = adjectivesData[Math.floor(Math.random() * adjectivesData.length)];
+    const dir = adjDirection === 'both'
+      ? (Math.random() < 0.5 ? 'japanese' : 'english')
+      : adjDirection;
+    return { en: adj.en, jp: adj.jp, hira: adj.hira, na: adj.na, direction: dir };
+  }
 
   function generateRandomDay() {
     const day = dayReadings[Math.floor(Math.random() * dayReadings.length)];
@@ -1358,8 +1542,10 @@
   let difficulty = 'easy';
   let seen = 0;
   let streak = 0;
-  let modes = { time: true, numbers: false, days: false };  // which modes are enabled
-  let dayDirection = 'japanese'; // 'japanese', 'english', or 'both'
+  let modes = { time: false, numbers: false, days: false, vocabulary: false, adjectives: false };
+  let dayDirection = 'both'; // 'both', 'japanese', or 'english'
+  let adjDirection = 'both';
+  let vocabLessons = { 7: false, 8: true, 9: false };
   let showRomaji = false;
   let numberRanges = {
     all: false,
@@ -1374,15 +1560,31 @@
   const answerHira = document.getElementById('answer-hira');
   const answerRomaji = document.getElementById('answer-romaji');
   const revealBtn = document.getElementById('reveal-btn');
-  const seenEl = document.getElementById('seen');
-  const streakEl = document.getElementById('streak');
+
+  const emptyState = document.getElementById('empty-state');
+  const practiceContent = document.getElementById('practice-content');
+  const actionsBar = document.getElementById('actions-bar');
+
+  function updateEmptyState() {
+    const anyActive = modes.time || modes.numbers || modes.days || modes.vocabulary || modes.adjectives;
+    emptyState.hidden = anyActive;
+    practiceContent.hidden = !anyActive;
+    actionsBar.hidden = !anyActive;
+    if (anyActive && !current) {
+      current = generateNext();
+      seen = 1;
+      render();
+    }
+  }
 
   function pickRandomItem() {
     const enabled = [];
     if (modes.time) enabled.push('time');
     if (modes.numbers) enabled.push('number');
     if (modes.days) enabled.push('day');
-    if (enabled.length === 0) return null;  // shouldn't happen — UI prevents it
+    if (modes.vocabulary) enabled.push('vocabulary');
+    if (modes.adjectives) enabled.push('adjective');
+    if (enabled.length === 0) return null;
     return enabled[Math.floor(Math.random() * enabled.length)];
   }
 
@@ -1392,6 +1594,10 @@
       return { type: 'time', data: generateRandomTime(difficulty) };
     } else if (type === 'day') {
       return { type: 'day', data: generateRandomDay() };
+    } else if (type === 'vocabulary') {
+      return { type: 'vocabulary', data: generateRandomVocab() };
+    } else if (type === 'adjective') {
+      return { type: 'adjective', data: generateRandomAdj() };
     } else {
       return { type: 'number', data: generateRandomNumber(difficulty, numberRanges) };
     }
@@ -1417,6 +1623,23 @@
         document.querySelector('.prompt').textContent = 'Say this day in Japanese';
       }
       nextLabel = 'Next day';
+    } else if (current.type === 'vocabulary') {
+      enText = current.data.en;
+      jp = { jp: current.data.jp, hira: current.data.hira };
+      document.querySelector('.prompt').textContent = 'Say this word in Japanese';
+      nextLabel = 'Next word';
+    } else if (current.type === 'adjective') {
+      const naSuffix = current.data.na ? '[な]' : '';
+      if (current.data.direction === 'english') {
+        enText = current.data.jp + naSuffix + '<span class="display-hira">' + current.data.hira + naSuffix + '</span>';
+        jp = { jp: current.data.en, hira: '' };
+        document.querySelector('.prompt').textContent = 'What does this adjective mean in English?';
+      } else {
+        enText = current.data.en;
+        jp = { jp: current.data.jp + naSuffix, hira: current.data.hira + naSuffix };
+        document.querySelector('.prompt').textContent = 'Say this adjective in Japanese';
+      }
+      nextLabel = 'Next adjective';
     } else {
       enText = current.data.toLocaleString();
       jp = numberToJapanese(current.data);
@@ -1437,21 +1660,29 @@
       answer.classList.remove('revealed');
       revealBtn.textContent = 'Show answer';
     }
-    seenEl.textContent = seen;
-    streakEl.textContent = streak;
   }
 
   function newTime() {
     if (!revealed && seen > 0) streak += 1;
-    current = generateNext();
-    if (!current) return;
-    revealed = false;
-    seen += 1;
-    timeDisplay.style.animation = 'none';
-    void timeDisplay.offsetWidth;
-    timeDisplay.style.animation = '';
-    render();
     haptic();
+
+    const doUpdate = () => {
+      current = generateNext();
+      if (!current) return;
+      revealed = false;
+      seen += 1;
+      timeDisplay.style.animation = 'none';
+      void timeDisplay.offsetWidth;
+      timeDisplay.style.animation = '';
+      render();
+    };
+
+    if (revealed) {
+      answer.classList.remove('revealed');
+      setTimeout(doUpdate, 350);
+    } else {
+      doUpdate();
+    }
   }
 
   function toggleAnswer() {
@@ -1485,6 +1716,8 @@
   const modeTime = document.getElementById('mode-time');
   const modeNumbers = document.getElementById('mode-numbers');
   const modeDays = document.getElementById('mode-days');
+  const modeVocab = document.getElementById('mode-vocab');
+  const modeAdj = document.getElementById('mode-adj');
   const rangeWrap = document.getElementById('range-wrap');
   const rangeCbs = document.querySelectorAll('.range-cb');
   const dayDirectionWrap = document.getElementById('day-direction-wrap');
@@ -1500,34 +1733,47 @@
     else dayDirectionWrap.classList.remove('open');
   }
 
-  function syncModes(changed) {
+  const vocabLessonWrap = document.getElementById('vocab-lesson-wrap');
+  const adjDirectionWrap = document.getElementById('adj-direction-wrap');
+
+  function updateVocabLessonVisibility() {
+    if (modes.vocabulary) vocabLessonWrap.classList.add('open');
+    else vocabLessonWrap.classList.remove('open');
+  }
+
+  function updateAdjDirectionVisibility() {
+    if (modes.adjectives) adjDirectionWrap.classList.add('open');
+    else adjDirectionWrap.classList.remove('open');
+  }
+
+  function syncModes() {
     modes.time = modeTime.checked;
     modes.numbers = modeNumbers.checked;
     modes.days = modeDays.checked;
-
-    // Prevent all being off — re-enable the one that was just turned off
-    if (!modes.time && !modes.numbers && !modes.days) {
-      if (changed === 'time') { modes.time = true; modeTime.checked = true; }
-      else if (changed === 'numbers') { modes.numbers = true; modeNumbers.checked = true; }
-      else { modes.days = true; modeDays.checked = true; }
-    }
+    modes.vocabulary = modeVocab.checked;
+    modes.adjectives = modeAdj.checked;
 
     updateRangeVisibility();
     updateDayDirectionVisibility();
+    updateVocabLessonVisibility();
+    updateAdjDirectionVisibility();
 
     // If the current item's type is no longer enabled, generate a new one
-    const typeKey = current && (current.type === 'time' ? 'time' : current.type === 'day' ? 'days' : 'numbers');
+    const typeMap = { time: 'time', number: 'numbers', day: 'days', vocabulary: 'vocabulary', adjective: 'adjectives' };
+    const typeKey = current && typeMap[current.type];
     if (current && !modes[typeKey]) {
       current = generateNext();
       revealed = false;
-      render();
     }
+    updateEmptyState();
     haptic();
   }
 
-  modeTime.addEventListener('change', () => syncModes('time'));
-  modeNumbers.addEventListener('change', () => syncModes('numbers'));
-  modeDays.addEventListener('change', () => syncModes('days'));
+  modeTime.addEventListener('change', syncModes);
+  modeNumbers.addEventListener('change', syncModes);
+  modeDays.addEventListener('change', syncModes);
+  modeVocab.addEventListener('change', syncModes);
+  modeAdj.addEventListener('change', syncModes);
 
   // Range checkboxes — multi-select, "All" is exclusive with the specific ones
   function syncRanges(changedKey) {
@@ -1601,13 +1847,50 @@
   dirCbs.forEach(cb => {
     cb.addEventListener('change', () => {
       if (cb.checked) syncDirection(cb.dataset.dir);
-      else cb.checked = true; // prevent unchecking — must have one selected
+      else cb.checked = true;
+    });
+  });
+
+  // Adjective direction checkboxes
+  const adjDirCbs = document.querySelectorAll('.adj-dir-cb');
+
+  function syncAdjDirection(key) {
+    adjDirCbs.forEach(cb => { cb.checked = cb.dataset.dir === key; });
+    adjDirection = key;
+    if (current && current.type === 'adjective') {
+      current = generateNext();
+      revealed = false;
+      render();
+    }
+    haptic();
+  }
+
+  adjDirCbs.forEach(cb => {
+    cb.addEventListener('change', () => {
+      if (cb.checked) syncAdjDirection(cb.dataset.dir);
+      else cb.checked = true;
+    });
+  });
+
+  // Lesson checkboxes — at least one must stay selected
+  document.querySelectorAll('.lesson-cb').forEach(cb => {
+    cb.addEventListener('change', () => {
+      vocabLessons[parseInt(cb.dataset.lesson)] = cb.checked;
+      const anyChecked = Object.values(vocabLessons).some(v => v);
+      if (!anyChecked) { vocabLessons[parseInt(cb.dataset.lesson)] = true; cb.checked = true; }
+      if (current && current.type === 'vocabulary') {
+        current = generateNext();
+        revealed = false;
+        render();
+      }
+      haptic();
     });
   });
 
   // Initial visibility
   updateRangeVisibility();
   updateDayDirectionVisibility();
+  updateVocabLessonVisibility();
 
   document.addEventListener('keydown', (e) => {
     if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); if (revealed) newTime(); else toggleAnswer(); }
@@ -1679,9 +1962,7 @@
   allSheets.forEach(attachSwipe);
 
   // Init
-  current = generateNext();
-  seen = 1;
-  render();
+  updateEmptyState();
 
   // PWA: register service worker (works once served from http/https)
   if ('serviceWorker' in navigator) {
